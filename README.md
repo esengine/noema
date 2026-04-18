@@ -47,6 +47,20 @@ The second torch install replaces the CPU-only default wheel with a CUDA 12.1 bu
 
 CPU-only training is technically possible for the smallest configs (≤10M params) but not recommended.
 
+## Phase 1 — latent-thinking arithmetic
+
+Train the no-CoT baseline and the latent-CoT model, then compare accuracy on held-out problems.
+
+```bash
+python -m noema.latent_train --config configs/phase1_baseline.yaml
+python -m noema.latent_train --config configs/phase1_latent.yaml
+
+python scripts/eval_arith.py --ckpt runs/phase1_baseline/best.pt --n-thoughts 0
+python scripts/eval_arith.py --ckpt runs/phase1_latent/best.pt   --n-thoughts 2
+```
+
+To probe how accuracy degrades with depth, sweep `--n-terms 3 4 5 6 7 8` against both checkpoints.
+
 ## Sampling from a checkpoint
 
 ```bash

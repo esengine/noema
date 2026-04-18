@@ -41,6 +41,23 @@ If Phase 3 shows a real signal:
 - Write up findings (blog post + arXiv)
 - Open the door to distributed contribution (rollouts, synthetic data, eval)
 
+## Phase 1 task — why arithmetic
+
+We need a task where reasoning depth can be dialed independently of vocabulary and semantics. *Sum of N single-digit terms, mod 10* meets that bar:
+
+- Output is a single token from a vocabulary of 10 — no tokenizer ambiguity.
+- Difficulty scales linearly with N; the model cannot memorize all (N=5 has 10^5 = 100k instances, training sees only a fraction).
+- Mod 10 strips away arithmetic magnitude, forcing the model to perform sequential accumulation rather than estimate.
+- Clean accuracy metric, no partial credit.
+
+Baselines we compare against the same model trained with latent thinking:
+
+1. No-CoT: model sees `3+7+2+5+8=` and must emit the answer immediately.
+2. (Future) Discrete-CoT: model emits intermediate sums as text tokens.
+3. Latent-CoT (this phase): K hidden "thought" steps between `<bot>` and `<eot>`.
+
+If latent-CoT cannot beat no-CoT at any K, the negative result still matters: it suggests this mechanism needs more scale than 1-2M parameters to benefit.
+
 ## Non-goals
 
 - Beating GPT-4 at anything
