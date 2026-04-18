@@ -47,6 +47,12 @@ The second torch install replaces the CPU-only default wheel with a CUDA 12.1 bu
 
 CPU-only training is technically possible for the smallest configs (≤10M params) but not recommended.
 
+## Sampling from a checkpoint
+
+```bash
+python scripts/generate.py --ckpt runs/phase0_tiny/best.pt --prompt "Once upon a time"
+```
+
 ## Status
 
 Phase 0 — scaffolding.
