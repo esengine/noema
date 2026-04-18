@@ -31,17 +31,17 @@ def main() -> None:
     n_thoughts = args.n_thoughts if args.n_thoughts is not None else ckpt["eval_n_thoughts"]
     batcher = ArithBatcher(tok, n_terms=n_terms, n_thoughts=n_thoughts, seed=42)
 
+    ans_pos = batcher.answer_position()
     correct = 0
     total = 0
     with torch.no_grad():
         for _ in range(args.batches):
-            x, y, m = batcher.sample(args.batch_size, device=args.device)
+            x, _, m = batcher.sample(args.batch_size, device=args.device)
             logits, _ = model.forward_latent(x, m)
-            ans_pos = (y != -100).nonzero()
-            for b, t in ans_pos:
-                if logits[b, t].argmax().item() == y[b, t].item():
-                    correct += 1
-                total += 1
+            preds = logits[:, ans_pos - 1].argmax(dim=-1)
+            true = x[:, ans_pos]
+            correct += (preds == true).sum().item()
+            total += preds.numel()
 
     acc = correct / max(total, 1)
     print(f"n_terms={n_terms}  n_thoughts={n_thoughts}  acc={acc:.4f}  ({correct}/{total})")

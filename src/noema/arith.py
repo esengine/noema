@@ -36,11 +36,10 @@ class ArithBatcher:
 
         sample_prompt = "+".join(["9"] * n_terms) + "="
         self.prompt_len = len(sample_prompt)
-        self.seq_len = self.prompt_len + 1 + n_thoughts + 1 + 1  # prompt + BOT + K + EOT + answer
+        self.seq_len = self.prompt_len + 1 + n_thoughts + 1 + 1
 
     def sample(self, batch_size: int, device: str = "cuda") -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         input_ids = torch.full((batch_size, self.seq_len), self.tok.pad_id, dtype=torch.long)
-        targets = torch.full((batch_size, self.seq_len), -100, dtype=torch.long)
         thought_mask = torch.zeros((batch_size, self.seq_len), dtype=torch.bool)
 
         for b in range(batch_size):
@@ -59,10 +58,20 @@ class ArithBatcher:
             input_ids[b, t] = self.tok.eot_id
             t += 1
             input_ids[b, t] = ans
-            # The target at the EOT position is the answer token.
-            targets[b, t - 1] = ans
 
             thought_mask[b, bot_end : bot_end + self.n_thoughts] = True
+
+        # Standard next-token LM targets, shifted by one.
+        targets = torch.full_like(input_ids, -100)
+        targets[:, :-1] = input_ids[:, 1:]
+
+        # Thought positions emit hidden states, not predictions — no loss there.
+        targets[thought_mask] = -100
+
+        # Positions whose next token is a thought placeholder also carry no signal.
+        target_is_thought = torch.zeros_like(thought_mask)
+        target_is_thought[:, :-1] = thought_mask[:, 1:]
+        targets[target_is_thought] = -100
 
         if device.startswith("cuda"):
             input_ids = input_ids.pin_memory().to(device, non_blocking=True)
@@ -73,3 +82,6 @@ class ArithBatcher:
             targets = targets.to(device)
             thought_mask = thought_mask.to(device)
         return input_ids, targets, thought_mask
+
+    def answer_position(self) -> int:
+        return self.prompt_len + self.n_thoughts + 2

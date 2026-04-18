@@ -44,7 +44,7 @@ class LatentTrainConfig:
 
 
 def load_config(path: str) -> LatentTrainConfig:
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         raw = yaml.safe_load(f) or {}
     return LatentTrainConfig(**raw)
 
@@ -71,17 +71,16 @@ def get_lr(step: int, cfg: LatentTrainConfig) -> float:
 def eval_accuracy(model: LatentGPT, tok: ArithTokenizer, cfg: LatentTrainConfig, k: int, n_batches: int) -> float:
     model.eval()
     batcher = ArithBatcher(tok, cfg.n_terms, k, seed=9999)
+    ans_pos = batcher.answer_position()
     correct = 0
     total = 0
     for _ in range(n_batches):
         x, y, m = batcher.sample(cfg.batch_size, device=cfg.device)
         logits, _ = model.forward_latent(x, m)
-        ans_pos = (y != -100).nonzero()
-        for b, t in ans_pos:
-            pred = logits[b, t].argmax().item()
-            if pred == y[b, t].item():
-                correct += 1
-            total += 1
+        preds = logits[:, ans_pos - 1].argmax(dim=-1)
+        true = x[:, ans_pos]
+        correct += (preds == true).sum().item()
+        total += preds.numel()
     model.train()
     return correct / max(total, 1)
 

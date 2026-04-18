@@ -1,7 +1,7 @@
 # Phase 1: latent-thinking arithmetic. Tiny model, large batch, curriculum on K.
 
 n_terms: 5
-# [step, K] pairs — at step >= threshold, use K thought tokens.
+# [step, K] pairs: at step >= threshold, use K thought tokens.
 thought_schedule:
   - [0, 0]
   - [2000, 1]

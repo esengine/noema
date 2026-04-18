@@ -48,7 +48,7 @@ class TrainConfig:
 
 
 def load_config(path: str) -> TrainConfig:
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         raw = yaml.safe_load(f) or {}
     return TrainConfig(**raw)
 

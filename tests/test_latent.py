@@ -25,6 +25,10 @@ def test_batcher_layout():
     assert x.shape == y.shape == m.shape
     assert m.sum().item() == 2 * 2
     assert (x[m] == tok.pad_id).all()
+    # Thought positions and their predecessors have no loss signal.
+    assert (y[m] == -100).all()
+    ans_pos = b.answer_position()
+    assert (y[:, ans_pos - 1] == x[:, ans_pos]).all()
 
 
 def test_latent_forward_zero_thoughts_matches_plain():
