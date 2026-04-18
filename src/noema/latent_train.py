@@ -44,8 +44,8 @@ class LatentTrainConfig:
 
 
 def load_config(path: str) -> LatentTrainConfig:
-    with open(path, encoding="utf-8") as f:
-        raw = yaml.safe_load(f) or {}
+    with open(path, "rb") as f:
+        raw = yaml.safe_load(f.read().decode("utf-8")) or {}
     return LatentTrainConfig(**raw)
 
 

@@ -73,6 +73,10 @@ class ArithBatcher:
         target_is_thought[:, :-1] = thought_mask[:, 1:]
         targets[target_is_thought] = -100
 
+        # Positions holding '+' predict a truly random digit — never learnable, only dilute the gradient.
+        plus_id = self.tok.stoi["+"]
+        targets[input_ids == plus_id] = -100
+
         if device.startswith("cuda"):
             input_ids = input_ids.pin_memory().to(device, non_blocking=True)
             targets = targets.pin_memory().to(device, non_blocking=True)
