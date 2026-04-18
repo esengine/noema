@@ -26,6 +26,17 @@ Noema is sized to fit an 8GB GPU. Everything in this repo must be reproducible o
 - **Phase 3** — Compare latent-CoT vs. discrete-CoT vs. no-CoT on small reasoning benchmarks (GSM8K-tiny, ProsQA, custom synthetic).
 - **Phase 4** — If results are interesting: write up, open-source weights, invite collaborators.
 
+## Install
+
+```bash
+python -m venv .venv && source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -e ".[train]"
+pip uninstall -y torch
+pip install torch --index-url https://download.pytorch.org/whl/cu121
+```
+
+The second torch install replaces the CPU-only default wheel with a CUDA 12.1 build. Verify with `python -c "import torch; print(torch.cuda.is_available())"` — must print `True`.
+
 ## Hardware target
 
 | Component | Minimum | Comfortable |
