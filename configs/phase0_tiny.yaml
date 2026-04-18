@@ -1,0 +1,30 @@
+# Phase 0 baseline. ~10M params.
+
+train_bin: data/processed/train.bin
+val_bin: data/processed/val.bin
+
+vocab_size: 50304
+block_size: 256
+n_layer: 6
+n_head: 6
+n_embd: 384
+dropout: 0.0
+
+batch_size: 32
+grad_accum_steps: 2
+max_steps: 5000
+eval_every: 250
+eval_iters: 50
+lr: 6.0e-4
+min_lr: 6.0e-5
+warmup_steps: 200
+weight_decay: 0.1
+grad_clip: 1.0
+
+device: cuda
+dtype: bfloat16
+compile: false
+grad_checkpointing: false
+
+out_dir: runs/phase0_tiny
+seed: 1337

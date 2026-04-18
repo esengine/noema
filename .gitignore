@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.venv/
+venv/
+env/
+
+# PyTorch / training artifacts
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+checkpoints/
+runs/
+wandb/
+lightning_logs/
+
+# Data (track scripts that build it, not the data itself)
+data/raw/
+data/processed/
+data/cache/
+*.bin
+*.npy
+*.npz
+*.arrow
+*.parquet
+
+# Notebooks
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Secrets
+.env
+.env.local

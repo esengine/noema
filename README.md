@@ -1,0 +1,45 @@
+# Noema
+
+Small-scale experiments in **latent-space reasoning** for language models.
+
+> *Noema (νόημα)* — in phenomenology, the object of thought; the content of a thinking act.
+
+## What this is
+
+A research playground for one question:
+
+> Can a small language model (≤300M parameters) learn to **reason in continuous latent space** instead of through discrete chain-of-thought tokens — and does it improve sample efficiency, reasoning depth, or speed?
+
+Inspired by Meta's *Chain of Continuous Thought* (Coconut, 2024) and related latent-reasoning work, but reframed for hardware most researchers actually have: a single consumer GPU.
+
+## Why small scale
+
+Frontier mechanisms are usually invented at toy scale. Mamba, nanoGPT, TinyStories, the original Transformer — all started as sub-billion-parameter experiments. Big labs scale ideas; small labs find them.
+
+Noema is sized to fit an 8GB GPU. Everything in this repo must be reproducible on a single RTX 3060.
+
+## Roadmap
+
+- **Phase 0** — nanoGPT-style baseline (124M params on a small corpus). Confirm the training loop works end-to-end.
+- **Phase 1** — Add a continuous-thought head: emit latent vectors between tokens, feed them back as inputs.
+- **Phase 2** — Curriculum: train on math / logic puzzles where reasoning depth matters.
+- **Phase 3** — Compare latent-CoT vs. discrete-CoT vs. no-CoT on small reasoning benchmarks (GSM8K-tiny, ProsQA, custom synthetic).
+- **Phase 4** — If results are interesting: write up, open-source weights, invite collaborators.
+
+## Hardware target
+
+| Component | Minimum | Comfortable |
+|-----------|---------|-------------|
+| GPU       | RTX 3060 8GB (or any 8GB+ NVIDIA card with bf16) | 12GB+ |
+| RAM       | 16GB    | 32GB |
+| Disk      | 50GB free | 200GB |
+
+CPU-only training is technically possible for the smallest configs (≤10M params) but not recommended.
+
+## Status
+
+Phase 0 — scaffolding.
+
+## License
+
+MIT (see `LICENSE`).

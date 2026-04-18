@@ -1,0 +1,37 @@
+[project]
+name = "noema"
+version = "0.0.1"
+description = "Small-scale experiments in latent-space reasoning."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Noema contributors" }]
+
+dependencies = [
+    "torch>=2.2",
+    "numpy>=1.26",
+    "tqdm>=4.66",
+    "tiktoken>=0.7",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.5",
+]
+train = [
+    "wandb>=0.17",
+    "datasets>=2.20",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
