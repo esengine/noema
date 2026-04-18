@@ -18,7 +18,7 @@ def main() -> None:
     p.add_argument("--device", default="cuda")
     args = p.parse_args()
 
-    ckpt = torch.load(args.ckpt, map_location=args.device)
+    ckpt = torch.load(args.ckpt, map_location=args.device, weights_only=True)
     model = GPT(GPTConfig(**ckpt["model_cfg"])).to(args.device)
     model.load_state_dict(ckpt["model"])
     model.eval()
