@@ -1,0 +1,27 @@
+# Same baseline as phase1_n3_baseline, trained 5x longer to probe for grokking.
+
+n_terms: 3
+thought_schedule:
+  - [0, 0]
+eval_n_thoughts: 0
+
+block_size: 32
+n_layer: 6
+n_head: 6
+n_embd: 192
+dropout: 0.0
+
+batch_size: 128
+max_steps: 150000
+eval_every: 5000
+eval_iters: 32
+lr: 5.0e-4
+min_lr: 5.0e-5
+warmup_steps: 500
+weight_decay: 1.0
+grad_clip: 1.0
+
+device: cuda
+dtype: bfloat16
+out_dir: runs/phase1_n3_long
+seed: 1337
