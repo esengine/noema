@@ -1,0 +1,29 @@
+# Latent + stop-grad with K=3 thoughts. Maps the K axis: K=1 fails,
+# K=2 plateaus at 50%, does K=3 push higher or hurt?
+
+n_terms: 3
+thought_schedule:
+  - [0, 3]
+eval_n_thoughts: 3
+stop_grad_thoughts: true
+
+block_size: 32
+n_layer: 6
+n_head: 6
+n_embd: 192
+dropout: 0.0
+
+batch_size: 128
+max_steps: 150000
+eval_every: 2000
+eval_iters: 32
+lr: 5.0e-4
+min_lr: 5.0e-5
+warmup_steps: 500
+weight_decay: 1.0
+grad_clip: 1.0
+
+device: cuda
+dtype: bfloat16
+out_dir: runs/phase1_n3_latent_sg_k3
+seed: 1337
