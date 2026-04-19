@@ -29,6 +29,7 @@ class LatentGPT(GPT):
         input_ids: torch.Tensor,
         thought_mask: torch.Tensor,
         targets: torch.Tensor | None = None,
+        stop_grad_thoughts: bool = False,
     ) -> tuple[torch.Tensor, torch.Tensor | None]:
         B, T = input_ids.shape
         assert T <= self.cfg.block_size
@@ -48,8 +49,11 @@ class LatentGPT(GPT):
         for t_pos in thought_idx.tolist():
             assert t_pos > 0, "thought cannot be the first position"
             h = self._trunk(emb, pos_emb, filled_mask)
+            injected = h[:, t_pos - 1, :]
+            if stop_grad_thoughts:
+                injected = injected.detach()
             new_emb = emb.clone()
-            new_emb[:, t_pos, :] = h[:, t_pos - 1, :]
+            new_emb[:, t_pos, :] = injected
             emb = new_emb
             filled_mask = filled_mask.clone()
             filled_mask[:, t_pos] = True

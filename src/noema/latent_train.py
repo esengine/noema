@@ -43,6 +43,8 @@ class LatentTrainConfig:
     out_dir: str = "runs/phase1_latent"
     seed: int = 1337
 
+    stop_grad_thoughts: bool = False
+
 
 def load_config(path: str) -> LatentTrainConfig:
     with open(path, "rb") as f:
@@ -105,6 +107,8 @@ def main() -> None:
     )
     model = LatentGPT(model_cfg).to(cfg.device)
     print(f"model params: {model.num_params() / 1e6:.3f}M  vocab: {tok.vocab_size}")
+    init_l2 = sum(p.detach().float().pow(2).sum().item() for p in model.parameters())
+    print(f"init param L2^2: {init_l2:.4f}  stop_grad_thoughts: {cfg.stop_grad_thoughts}")
 
     decay, no_decay = [], []
     for _, p in model.named_parameters():
@@ -142,7 +146,7 @@ def main() -> None:
 
         x, y, m = batcher.sample(cfg.batch_size, device=cfg.device)
         with autocast_ctx:
-            _, loss = model.forward_latent(x, m, y)
+            _, loss = model.forward_latent(x, m, y, stop_grad_thoughts=cfg.stop_grad_thoughts)
 
         optim.zero_grad(set_to_none=True)
         loss.backward()
@@ -174,6 +178,9 @@ def main() -> None:
                     Path(cfg.out_dir) / "best.pt",
                 )
                 print(f"  >> saved best.pt @ acc {best_acc:.3f}")
+
+    final_l2 = sum(p.detach().float().pow(2).sum().item() for p in model.parameters())
+    print(f"final param L2^2: {final_l2:.4f}  delta: {final_l2 - init_l2:+.4f}")
 
     tail = eval_history[-10:]
     summary = {
