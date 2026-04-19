@@ -1,0 +1,33 @@
+# Fast probe: 50k step budget with early-stop if acc stays below 15% through step 20k.
+# Use as a template for quick what-if experiments — copy and tweak one hyperparam at a time.
+
+n_terms: 3
+thought_schedule:
+  - [0, 2]
+eval_n_thoughts: 2
+stop_grad_thoughts: true
+
+block_size: 32
+n_layer: 6
+n_head: 6
+n_embd: 192
+dropout: 0.0
+
+batch_size: 128
+max_steps: 50000
+eval_every: 1000
+eval_iters: 32
+lr: 5.0e-4
+min_lr: 5.0e-4
+warmup_steps: 500
+weight_decay: 1.0
+grad_clip: 1.0
+
+early_stop_patience: 5
+early_stop_min_step: 20000
+early_stop_min_acc: 0.15
+
+device: cuda
+dtype: bfloat16
+out_dir: runs/phase1_n3_probe
+seed: 1337

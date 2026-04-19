@@ -45,6 +45,10 @@ class LatentTrainConfig:
 
     stop_grad_thoughts: bool = False
 
+    early_stop_patience: int = 0
+    early_stop_min_step: int = 20000
+    early_stop_min_acc: float = 0.15
+
 
 def load_config(path: str) -> LatentTrainConfig:
     with open(path, "rb") as f:
@@ -164,6 +168,11 @@ def main() -> None:
             if grokking_step is None and acc >= grokking_threshold:
                 grokking_step = step
                 print(f"  >> grokking crossed {grokking_threshold:.0%} at step {step}")
+            if cfg.early_stop_patience > 0 and step >= cfg.early_stop_min_step and grokking_step is None:
+                best_recent = max(a for _, a in eval_history[-cfg.early_stop_patience:])
+                if best_recent < cfg.early_stop_min_acc:
+                    print(f"  >> early stop: last {cfg.early_stop_patience} evals all below {cfg.early_stop_min_acc:.2f}")
+                    break
             if acc > best_acc:
                 best_acc = acc
                 torch.save(
