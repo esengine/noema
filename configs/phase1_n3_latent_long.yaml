@@ -1,0 +1,30 @@
+# Latent counterpart to phase1_n3_long. Identical hyperparams except thought curriculum.
+# Compares: does latent grokk earlier than baseline's 150k step grokking point?
+
+n_terms: 3
+thought_schedule:
+  - [0, 0]
+  - [10000, 1]
+  - [30000, 2]
+eval_n_thoughts: 2
+
+block_size: 32
+n_layer: 6
+n_head: 6
+n_embd: 192
+dropout: 0.0
+
+batch_size: 128
+max_steps: 150000
+eval_every: 2000
+eval_iters: 32
+lr: 5.0e-4
+min_lr: 5.0e-5
+warmup_steps: 500
+weight_decay: 1.0
+grad_clip: 1.0
+
+device: cuda
+dtype: bfloat16
+out_dir: runs/phase1_n3_latent_long
+seed: 1337
