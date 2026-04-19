@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import math
 import time
 from dataclasses import dataclass, field
@@ -126,6 +127,10 @@ def main() -> None:
     )
 
     best_acc = 0.0
+    grokking_step = None
+    grokking_threshold = 0.5
+    eval_history: list[tuple[int, float]] = []
+
     t0 = time.time()
     for step in range(cfg.max_steps):
         k = current_k(step, cfg.thought_schedule)
@@ -151,6 +156,10 @@ def main() -> None:
         if step > 0 and step % cfg.eval_every == 0:
             acc = eval_accuracy(model, tok, cfg, cfg.eval_n_thoughts, cfg.eval_iters)
             print(f"  >> eval@K={cfg.eval_n_thoughts}: acc {acc:.3f}")
+            eval_history.append((step, acc))
+            if grokking_step is None and acc >= grokking_threshold:
+                grokking_step = step
+                print(f"  >> grokking crossed {grokking_threshold:.0%} at step {step}")
             if acc > best_acc:
                 best_acc = acc
                 torch.save(
@@ -166,7 +175,30 @@ def main() -> None:
                 )
                 print(f"  >> saved best.pt @ acc {best_acc:.3f}")
 
-    print(f"done. best acc {best_acc:.3f}")
+    tail = eval_history[-10:]
+    summary = {
+        "config": args.config,
+        "n_terms": cfg.n_terms,
+        "eval_n_thoughts": cfg.eval_n_thoughts,
+        "max_steps": cfg.max_steps,
+        "grokking_step": grokking_step,
+        "final_acc": tail[-1][1] if tail else None,
+        "best_acc": best_acc,
+        "acc_tail": tail,
+    }
+    with open(Path(cfg.out_dir) / "summary.json", "w", encoding="utf-8") as f:
+        json.dump(summary, f, indent=2)
+
+    print()
+    print("=" * 60)
+    print(f"config          {args.config}")
+    print(f"n_terms         {cfg.n_terms}")
+    print(f"max_steps       {cfg.max_steps}")
+    print(f"grokking step   {grokking_step}" if grokking_step is not None else "grokking step   (never crossed 50%)")
+    print(f"final acc       {tail[-1][1]:.3f}" if tail else "final acc       n/a")
+    print(f"best acc        {best_acc:.3f}")
+    print(f"acc tail        {[(s, round(a, 3)) for s, a in tail]}")
+    print("=" * 60)
 
 
 if __name__ == "__main__":
